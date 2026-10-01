@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STEM Day - House Groups Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --bg-light: #f1f5f9;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            
+            /* House Theme Colors (Light & Vibrant Background Tints) */
+            --chimera-primary: #dc2626;
+            --chimera-bg: #fff1f2;
+            --chimera-card: #ffffff;
+            --chimera-border: #fecaca;
+
+            --hydra-primary: #2563eb;
+            --hydra-bg: #eff6ff;
+            --hydra-card: #ffffff;
+            --hydra-border: #bfdbfe;
+
+            --sphinx-primary: #b45309;
+            --sphinx-bg: #fefce8;
+            --sphinx-card: #ffffff;
+            --sphinx-border: #fef08a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        header h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Controls Section */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 1.25rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+        }
+
+        @media(min-width: 768px) {
+            .controls {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border-radius: 0.5rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--text-muted);
+            box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .filter-btn.active {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
+        }
+
+        .filter-btn[data-house="Chimera"].active { background: var(--chimera-primary); border-color: var(--chimera-primary); color: white; }
+        .filter-btn[data-house="Hydra"].active { background: var(--hydra-primary); border-color: var(--hydra-primary); color: white; }
+        .filter-btn[data-house="Sphinx"].active { background: var(--sphinx-primary); border-color: var(--sphinx-primary); color: white; }
+
+        /* House Sections Grid */
+        .houses-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .house-container {
+            border-radius: 1.25rem;
+            padding: 1.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        /* House Colored Backgrounds */
+        .house-container.chimera {
+            background-color: var(--chimera-bg);
+            border: 2px solid var(--chimera-border);
+        }
+
+        .house-container.hydra {
+            background-color: var(--hydra-bg);
+            border: 2px solid var(--hydra-border);
+        }
+
+        .house-container.sphinx {
+            background-color: var(--sphinx-bg);
+            border: 2px solid var(--sphinx-border);
+        }
+
+        .house-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .house-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .house-badge-count {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.85rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* House Header Elements */
+        .house-container.chimera .house-title { color: var(--chimera-primary); }
+        .house-container.chimera .house-badge-count { color: var(--chimera-primary); border: 1px solid var(--chimera-border); }
+
+        .house-container.hydra .house-title { color: var(--hydra-primary); }
+        .house-container.hydra .house-badge-count { color: var(--hydra-primary); border: 1px solid var(--hydra-border); }
+
+        .house-container.sphinx .house-title { color: var(--sphinx-primary); }
+        .house-container.sphinx .house-badge-count { color: var(--sphinx-primary); border: 1px solid var(--sphinx-border); }
+
+        /* Subgroups Grid */
+        .subgroups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .subgroup-card {
+            background: #ffffff;
+            border-radius: 0.85rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .house-container.chimera .subgroup-card { border: 1px solid var(--chimera-border); }
+        .house-container.hydra .subgroup-card { border: 1px solid var(--hydra-border); }
+        .house-container.sphinx .subgroup-card { border: 1px solid var(--sphinx-border); }
+
+        .subgroup-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.06);
+        }
+
+        .subgroup-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chimera .subgroup-title span { color: var(--chimera-primary); }
+        .hydra .subgroup-title span { color: var(--hydra-primary); }
+        .sphinx .subgroup-title span { color: var(--sphinx-primary); }
+
+        .student-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .student-item {
+            background: #f8fafc;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            border: 1px solid #e2e8f0;
+            transition: background 0.2s;
+        }
+
+        .student-item:hover {
+            background: #f1f5f9;
+        }
+
+        .student-name {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .student-grade {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 0.3rem;
+            background: #ffffff;
+            color: var(--text-muted);
+            white-space: nowrap;
+            margin-left: 0.5rem;
+            border: 1px solid #cbd5e1;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            display: none;
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 1rem;
+        }
+
+        @media(max-width: 768px) {
+            header h1 { font-size: 2rem; }
+            .house-container { padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fa-solid fa-atom"></i> STEM Day Houses</h1>
+        <p>Primary Team Allocations</p>
+    </header>
+
+    <div class="controls">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Search student name or grade..." onkeyup="filterStudents()">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterHouse('all')">All Houses</button>
+            <button class="filter-btn" data-house="Chimera" onclick="filterHouse('Chimera')">Chimera (Red)</button>
+            <button class="filter-btn" data-house="Hydra" onclick="filterHouse('Hydra')">Hydra (Blue)</button>
+            <button class="filter-btn" data-house="Sphinx" onclick="filterHouse('Sphinx')">Sphinx (Yellow)</button>
+        </div>
+    </div>
+
+    <div class="houses-grid" id="housesGrid">
+        
+        <!-- CHIMERA HOUSE -->
+        <div class="house-container chimera" data-house-name="Chimera">
+            <div class="house-header">
+                <div class="house-title">
+                    <i class="fa-solid fa-fire-flame-curved"></i>
+                    Chimera House
+                </div>
+                <div class="house-badge-count">27 Students • 5 Groups</div>
+            </div>
+            <div class="subgroups-grid">
+                <!-- Chimera 1 -->
+                <div class="subgroup-card" data-subgroup="Chimera1">
+                    <div class="subgroup-title">Chimera 1 <span>(6)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Li Hong Tuong</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Le Duc Anh</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Hoang Khoi</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Le Tri Vu</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Hoang Anh Viet</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Huynh Gia Phat</span><span class="student-grade">Y4 Integrated</span></li>
+                       
+                    </ul>
+                </div>
+                <!-- Chimera 2 -->
+                <div class="subgroup-card" data-subgroup="Chimera2">
+                    <div class="subgroup-title">Chimera 2 <span>(6)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Nguyen Nhat Thuong</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Le Bao An</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Tsai Yun Jing</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Ky Hao</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Tran Luong Nhan</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Vuong Quynh Anh</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Chimera 3 -->
+                <div class="subgroup-card" data-subgroup="Chimera3">
+                    <div class="subgroup-title">Chimera 3 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Shen Chen Zhen</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Doan Thanh Dat</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Thoi Hoang Minh</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Tran Ngoc Tu Anh</span><span class="student-grade">Y5 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Xu Bing Yan</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Chimera 4 -->
+                <div class="subgroup-card" data-subgroup="Chimera4">
+                    <div class="subgroup-title">Chimera 4 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Nguyen Benny Hoang Son</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Wang Ze Zhi Thomas</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Le Dinh Phuoc</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Dai Vi</span><span class="student-grade">Y5 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Anh Quan</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Chimera 5 -->
+                <div class="subgroup-card" data-subgroup="Chimera5">
+                    <div class="subgroup-title">Chimera 5 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Smith Minh Hayden</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Liu Rou Yun</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Hoang Nhat Minh</span><span class="student-grade">Y5 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Tran Thi Hoai Anh</span><span class="student-grade">Y6 Integrated</span></li>
+			 <li class="student-item"><span class="student-name">Nguyen Ngoc Minh</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- HYDRA HOUSE -->
+        <div class="house-container hydra" data-house-name="Hydra">
+            <div class="house-header">
+                <div class="house-title">
+                    <i class="fa-solid fa-water"></i>
+                    Hydra House
+                </div>
+                <div class="house-badge-count">26 Students • 5 Groups</div>
+            </div>
+            <div class="subgroups-grid">
+                <!-- Hydra 1 -->
+                <div class="subgroup-card" data-subgroup="Hydra1">
+                    <div class="subgroup-title">Hydra 1 <span>(6)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Simay Bilgin</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Bui Bich Phuong</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Thien Luong</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen An Nhien</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Tien Dat</span><span class="student-grade">Y5 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Chi Minh</span><span class="student-grade">Y6 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Hydra 2 -->
+                <div class="subgroup-card" data-subgroup="Hydra2">
+                    <div class="subgroup-title">Hydra 2 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Sun Yi-Fei</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Zhang Ze Han</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Rishabh Jain</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Do Ngoc Minh Thu</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Song Nguyen Tue Minh</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Hydra 3 -->
+                <div class="subgroup-card" data-subgroup="Hydra3">
+                    <div class="subgroup-title">Hydra 3 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Xiao ZiQi</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Rogers Colin Khang*</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Ho An Nhien</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Tran Hung Khang</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Hoang Gia Phuc</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Hydra 4 -->
+                <div class="subgroup-card" data-subgroup="Hydra4">
+                    <div class="subgroup-title">Hydra 4 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Elijiah Hamill</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Treasure Kimberly Hunt</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Truong Duc Hoang</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Hoang Tri</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Li Ming Ying</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Hydra 5 -->
+                <div class="subgroup-card" data-subgroup="Hydra5">
+                    <div class="subgroup-title">Hydra 5 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Dang Diep Nghien Dong</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Dinh Nguyen Gia Bao</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Zhang Wen Ze</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Huynh Thien Kim</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Thien Bao</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SPHINX HOUSE -->
+        <div class="house-container sphinx" data-house-name="Sphinx">
+            <div class="house-header">
+                <div class="house-title">
+                    <i class="fa-solid fa-sun"></i>
+                    Sphinx House
+                </div>
+                <div class="house-badge-count">27 Students • 5 Groups</div>
+            </div>
+            <div class="subgroups-grid">
+                <!-- Sphinx 1 -->
+                <div class="subgroup-card" data-subgroup="Sphinx1">
+                    <div class="subgroup-title">Sphinx 1 <span>(6)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Hoang Du Van Ly</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Võ Hoàng Bách</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Celine</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Phuoc Thanh Lam</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Vo Huynh Anh</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen My An</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Sphinx 2 -->
+                <div class="subgroup-card" data-subgroup="Sphinx2">
+                    <div class="subgroup-title">Sphinx 2 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Nguyen Hao Quan</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Lin Xuan Ru</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Luong Ly Ngan Lan</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Le Phi Yen</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Mai Thanh Khoi</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Sphinx 3 -->
+                <div class="subgroup-card" data-subgroup="Sphinx3">
+                    <div class="subgroup-title">Sphinx 3 <span>(6)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Tran Duc Bao</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Zhang ZiQi</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Doan Quang Hung</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Nhat Nam</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Tran Luong Thanh</span><span class="student-grade">Y5 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Tran Hoang Bao Nam</span><span class="student-grade">Y6 Integrated</span></li>
+                    </ul>
+                </div>
+                <!-- Sphinx 4 -->
+                <div class="subgroup-card" data-subgroup="Sphinx4">
+                    <div class="subgroup-title">Sphinx 4 <span>(6)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">To Minh Khang</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Ling Yi Hang</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Doan Huynh Minh Triet</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Nguyen Tuan Kiet</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Luu Phuc Lam</span><span class="student-grade">Y5 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Tham Pham Anh</span><span class="student-grade">Y6 Integrated</span></li>
+                    </ul>
+                </div>
+             <!-- Sphinx 5 -->
+                <div class="subgroup-card" data-subgroup="Sphinx5">
+                    <div class="subgroup-title">Sphinx 5 <span>(5)</span></div>
+                    <ul class="student-list">
+                        <li class="student-item"><span class="student-name">Yang Yueh Teng</span><span class="student-grade">Y4 International</span></li>
+                        <li class="student-item"><span class="student-name">Ling Yi Yang</span><span class="student-grade">Y5 International</span></li>
+                        <li class="student-item"><span class="student-name">Ta Duy Tommy</span><span class="student-grade">Y6 International</span></li>
+                        <li class="student-item"><span class="student-name">Le Nguyen Phuc</span><span class="student-grade">Y4 Integrated</span></li>
+                        <li class="student-item"><span class="student-name">Dang Tran Giang Tien</span><span class="student-grade">Y5 Integrated</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-results" id="noResults">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+            <p>No students found matching your search query.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterHouse(houseName) {
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        if(houseName === 'all') {
+            document.querySelector('.filter-btn:not([data-house])').classList.add('active');
+        } else {
+            document.querySelector(`.filter-btn[data-house="${houseName}"]`).classList.add('active');
+        }
+
+        // Show/Hide houses
+        const houses = document.querySelectorAll('.house-container');
+        houses.forEach(house => {
+            if(houseName === 'all' || house.dataset.houseName === houseName) {
+                house.style.display = 'block';
+            } else {
+                house.style.display = 'none';
+            }
+        });
+    }
+
+    function filterStudents() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const houses = document.querySelectorAll('.house-container');
+        let totalVisibleStudents = 0;
+
+        houses.forEach(house => {
+            const subgroups = house.querySelectorAll('.subgroup-card');
+            let houseHasVisible = false;
+
+            subgroups.forEach(subgroup => {
+                const items = subgroup.querySelectorAll('.student-item');
+                let subgroupHasVisible = false;
+
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if(text.includes(query)) {
+                        item.style.display = 'flex';
+                        subgroupHasVisible = true;
+                        totalVisibleStudents++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                if(subgroupHasVisible) {
+                    subgroup.style.display = 'block';
+                    houseHasVisible = true;
+                } else {
+                    subgroup.style.display = 'none';
+                }
+            });
+
+            if(houseHasVisible) {
+                house.style.display = 'block';
+            } else {
+                house.style.display = 'none';
+            }
+        });
+
+        const noResults = document.getElementById('noResults');
+        if(totalVisibleStudents === 0) {
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
